@@ -20,11 +20,25 @@ void main() {
     expect(find.text('1'), findsNothing);
 
     // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    final addButton = find.byKey(const Key('OtherPageAddButton'));
+    // await tester.tap(find.byIcon(Icons.arrow_upward));
+    await tester.tap(addButton);
     await tester.pump();
 
     // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
+
+    // navigate to Other Page
+    final nextpageButton = find.byKey(const Key('GotoAnotherPage'));
+    await tester.tap(nextpageButton);
+
+    // use pumpAndSettle() to ensure we nagivated to the new page
+    await tester.pumpAndSettle();
+
+    // we ashould be in OtherPage now
+    expect(find.byKey(const Key('OtherPageAddButton')), findsNothing);
+    final anotherAdd = find.byKey(const Key('AnotherPageAddButton'));
+    expect(anotherAdd, findsOneWidget);
   });
 }
