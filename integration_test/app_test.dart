@@ -27,9 +27,12 @@ void main() {
       // Verify the counter increments by 1.
       expect(find.text('1'), findsOneWidget);
 
-      await Future.delayed(const Duration(seconds: 1));
+      // wait for debouncer to reset
+      await Future.delayed(const Duration(seconds: 2));
 
-      // Emulate a tap on the floating action button.
+      // Emulate consecutive taps on the floating action button.
+      await tester.tap(fab);
+      await tester.tap(fab);
       await tester.tap(fab);
       await tester.tap(fab);
 
@@ -37,7 +40,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify the counter increments by 1.
-      expect(find.text('3'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
     });
   });
 }

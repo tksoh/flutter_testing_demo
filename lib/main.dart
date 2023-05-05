@@ -49,6 +49,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool inAction = false;
 
   void _incrementCounter() {
     debugPrint('increment: ${DateTime.now()}');
@@ -60,6 +61,22 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       _counter++;
     });
+  }
+
+  void debouncer() {
+    if (inAction) {
+      debugPrint('debouncer: action in progress... [${DateTime.now()}]');
+      return;
+    }
+
+    inAction = true;
+    Future.delayed(const Duration(seconds: 1), () {
+      inAction = false;
+      debugPrint('debouncer: reset [${DateTime.now()}]');
+    });
+
+    debugPrint('debouncer: start action... [${DateTime.now()}]');
+    _incrementCounter();
   }
 
   @override
@@ -111,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: debouncer,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
