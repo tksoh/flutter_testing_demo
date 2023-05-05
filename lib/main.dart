@@ -50,6 +50,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   bool inAction = false;
+  final debounce = Debouncer(duration: const Duration(milliseconds: 1000));
 
   void _incrementCounter() {
     debugPrint('increment: ${DateTime.now()}');
@@ -128,10 +129,66 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: debouncer,
+        onPressed: () => debounce.onPressed(_incrementCounter),
+        // onPressed: () => debouncer(),
+        // onPressed: debouncer,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class TimeoutChecker {
+  DateTime? lastCheckTime;
+  late Duration duration;
+
+  TimeoutChecker({required this.duration});
+
+  bool get expired {
+    if (lastCheckTime == null) {
+      final now = DateTime.now();
+      lastCheckTime = now;
+      Future.delayed(duration).then((value) => reset());
+      debugPrint("TimeoutChecker: init @ $now");
+      return true; // new session == expired session
+    } else {
+      debugPrint(
+          "TimeoutChecker: checked +${DateTime.now().difference(lastCheckTime!).inMilliseconds}ms");
+      return false;
+    }
+  }
+
+  void reset() {
+    if (lastCheckTime == null) {
+      return;
+    }
+
+    debugPrint(
+        "TimeoutChecker: reset +${DateTime.now().difference(lastCheckTime!).inMilliseconds}ms");
+    lastCheckTime = null;
+  }
+}
+
+class Debouncer {
+  final Duration duration;
+  late final VoidCallback? _onPressed;
+  late final TimeoutChecker timeoutChecker;
+
+  Debouncer({required this.duration, VoidCallback? onPressed}) {
+    timeoutChecker = TimeoutChecker(duration: duration);
+    _onPressed = onPressed;
+  }
+
+  void onPressed(VoidCallback? callback) {
+    if (timeoutChecker.expired) {
+      if (callback != null) {
+        callback();
+      }
+
+      if (_onPressed != null) {
+        _onPressed!();
+      }
+    }
   }
 }
