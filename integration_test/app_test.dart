@@ -26,6 +26,18 @@ void main() {
 
       // Verify the counter increments by 1.
       expect(find.text('1'), findsOneWidget);
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      // Emulate a tap on the floating action button.
+      await tester.tap(fab);
+      await tester.tap(fab);
+
+      // Trigger a frame.
+      await tester.pumpAndSettle();
+
+      // Verify the counter increments by 1.
+      expect(find.text('3'), findsOneWidget);
     });
   });
 }
